@@ -1,0 +1,180 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<script type = "text/javascript" src = "vue.js"></script>
+<link rel=stylesheet href="Lista.css">
+<style>
+</style>
+</head>
+<body>
+<section class="todoapp">
+	<header class="header">
+		<h1>ITENS</h1>
+		<!-- Entrada de valores -->
+		<input autofocus autocomplete="off" placeholder="Novo item da LISTA" v-model="newItem" @keyup.enter="addItem">
+	</header>
+	<section class="main">
+		<table border=1 cellspacing=0 width=60%  v-if="itens.length > 0">
+			<tr>
+				<td valign=top>
+					<!-- LISTA DE ITENS - INÍCIO -->
+					<table>
+						<tr v-for="(item,index) in itens" :key="item.id">
+							<td>
+								<label>({{index}}) : {{ item.id }}-{{ item.title }}</label></td><td>{{ item.dtnascto }}</td><td>{{ item.bairro }}</td><td><button @click="updateItem(item)">E</button><button @click="removeItem(item)">X</button></td>
+							</td>
+						</tr>
+					</table>
+					<!-- LISTA DE ITENS - FIM -->
+				</td>
+				<td valign=top>
+					<!-- form method="post" action="" -->
+						<table>
+							<caption><h2>Edição</h2></caption>
+							<tr>
+								<td>
+									<label>Ind:</label></td><td>
+									<input name="Ind" :value="currentItemId" readonly>
+								</td>
+							</tr><tr>
+								<td>
+									<label>Id:</label></td><td>
+									<input name="Id" :value="currentItem.id" readonly>
+								</td>
+							</tr><tr>
+								<td>
+									<label>Título:</label></td><td>
+									<input name="Id" :value="currentItem.title">
+								</td>
+							</tr><tr>
+								<td>
+									<label>Data Nasc<sup>to</sup>:</label></td><td>
+									<input name="Id" v-model="currentItem.dtnascto">
+								</td>
+							</tr><tr>
+								<td>
+									<label>Bairro:</label></td><td>
+									<input name="Id" v-model="currentItem.bairro">
+								</td>
+							</tr><tr>
+								<td colspan=2 align=center><button @click="updateSaveItem(item)">Gravar</button></td>
+							</tr>
+						</table>
+					<!-- /form -->
+				</td>
+			</tr>
+		</table>
+	</section>
+</section>
+<script>
+// app Vue instance
+var app = new Vue({
+	// Estado inicial da aplicação
+	// newItem está definido no atributo v-model do INPUT
+	// PRIMEIROS VALORES DOS PARÂMETROS
+	data: {
+		itens: [],
+		item: {},
+		currentItem:{ index:0, id:0,title:'',dtnascto:'',bairro:''},
+		uid: 0,
+		a:0,
+		newItem: '',
+		currentItemId:0
+		},
+	// MONITORES DE VARIÁVEIS
+	watch: {
+		itens: {
+			handler: function (itens) {
+				console.log("wi: "+arguments.callee.name)
+				},
+			deep: true
+			},
+		currentItem: {
+			handler: function (currentItem){
+				console.log("ItId:"+ currentItem["dtnascto"])
+				},
+			deep: true
+			},
+		currentItemId: {
+			handler: function (currentItemId){
+				console.log("curItId:"+ currentItemId)
+				},
+			deep: true
+			},
+		newItem:  {
+			handler: function (newItem) {
+				console.log("wn: "+arguments.callee.name+" "+newItem+" "+this.currentItem.id)
+				},
+			deep: true
+			}
+		},
+	// Métodos / regras do negócio
+	methods: {
+		addItem: function () {
+			// Valor digitado: <INPUT  ... v-model="newItem" ... >
+			var value = this.newItem && this.newItem.trim()
+			console.log("----------------------------------")
+			console.log("m: "+arguments.callee.name)
+			if (!value) {
+				return
+				}
+			// id
+			// title = valor que entrou no INPUT
+			var no = this.uid++;
+			var it = { id: no,  title: value, dtnascto: '' ,bairro:''  }
+			this.currentItem.id = it.id;
+			this.currentItem.title = it.title;
+			this.currentItem.dtnascto = it.dtnascto;
+			this.currentItem.bairro = it.bairro;
+			it.index = this.itens.length;
+			this.itens.push(it);
+			this.currentItemId = it.index;
+			this.newItem = ''
+			console.log("add: "+it.title)
+			},
+		updateItem: function (item) {
+				this.currentItem.id = item.id;
+				this.currentItem.title = item.title;
+				this.currentItem.dtnascto = item.dtnascto;
+				this.currentItem.bairro = item.bairro;
+				this.currentItemId = this.itens.indexOf(item);
+				console.log("upd: "+item.title)
+				},
+		updateSaveItem: function (itens) {
+				var i = this.currentItemId;
+				this.itens[i].id = this.currentItem.id;
+				this.itens[i].title = this.currentItem.title;
+				this.itens[i].dtnascto = this.currentItem.dtnascto;
+				this.itens[i].bairro = this.currentItem.bairro;
+				console.log("updsave: "+this.currentItem.title)
+				},
+		removeItem: function (item) {
+			console.log("remove: "+this.itens[this.itens.indexOf(item)].title)
+			this.itens.splice(this.itens.indexOf(item), 1)
+			
+			if( this.itens.length > 0 ){
+				this.currentItem.id = this.itens[0].id;
+				this.currentItem.title = this.itens[0].title;
+				this.currentItemId = this.itens[0].index;
+				} else {
+				this.currentItem.id = '';
+				this.currentItem.title = '';
+				this.currentItemId = '';				
+				}
+			
+			}
+		}
+
+})
+
+// handle routing
+function onHashChange () {
+	var parametro = window.location.hash.replace(/#\/?/, '')
+	}
+window.addEventListener('hashchange', onHashChange)
+onHashChange()
+// mount
+app.$mount('.todoapp')
+</script>
+</body>
+</html>
